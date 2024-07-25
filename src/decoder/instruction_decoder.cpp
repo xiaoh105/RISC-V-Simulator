@@ -12,13 +12,21 @@ void InstructionDecoder::Decode(uint32_t instruction) {
   SetOpType();
   SetImmType();
   SetALUType();
+  SetBranchType();
 }
+
+void InstructionDecoder::Tick() {
+  decoded_ = false;
+}
+
 
 ImmType InstructionDecoder::GetImmType() const { return imm_type_; }
 
 OpType InstructionDecoder::GetOpType() const { return op_type_; }
 
 ALUType InstructionDecoder::GetALUType() const { return alu_type_; }
+
+BrType InstructionDecoder::GetBranchType() const { return branch_type_; }
 
 void InstructionDecoder::SetOpType() {
   auto opcode = FetchBits(instruction_, 0, 6);
@@ -118,5 +126,14 @@ void InstructionDecoder::SetALUType() {
       std::cerr << "Invalid I Type funct3 " << funct3 << std::endl;
       throw std::runtime_error("Invalid instruction");
     }
+  }
+}
+
+void InstructionDecoder::SetBranchType() {
+  if (imm_type_ != ImmType::B) {
+    branch_type_ = BrType::Eq;
+  } else {
+    auto funct3 = FetchBits(instruction_, 12, 14);
+    branch_type_ = static_cast<BrType>(funct3);
   }
 }

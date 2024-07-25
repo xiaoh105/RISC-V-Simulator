@@ -3,7 +3,7 @@
 
 class Memory {
 public:
-  enum class Type : int { byte = 1, halfword = 2, word = 4 };
+  enum class Type : int { byte = 0, halfword = 1, word = 2 };
   Memory() = delete;
 
   explicit Memory(int clock_per_visit, const std::unordered_map<uint32_t, std::byte> &memory);

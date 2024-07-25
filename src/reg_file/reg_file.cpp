@@ -25,7 +25,9 @@ void RegFile::Store(uint32_t addr, uint32_t value) {
     throw std::runtime_error("Invalid write");
   }
   ++write_;
-  registers_[addr] = value; // NOLINT
+  if (addr != 0) {
+    registers_[addr] = value; // NOLINT
+  }
 }
 
 void RegFile::Tick() {

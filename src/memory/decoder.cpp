@@ -22,12 +22,7 @@ uint32_t DecodeAddress(const std::string &data) {
   return static_cast<uint32_t>(value);
 }
 
-Decoder::Decoder(const std::string& file_name) {
-  io_.open(file_name);
-  if (!io_.is_open()) {
-    std::cerr << "Can not open data file " << file_name << std::endl;
-    throw std::runtime_error("Cannot open file");
-  }
+Decoder::Decoder(std::istream &io) : io_(io) {
   LoadData();
 }
 
