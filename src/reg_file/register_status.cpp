@@ -1,12 +1,9 @@
 #include <iostream>
 
 #include "reg_file/register_status.h"
+#include "wiring.h"
 
 void RegisterStatus::Tick() {
-  if (wire_out.regfile_reset && (wire_out.regfile_append_enable || wire_out.regfile_write_enable)) {
-    std::cerr << "Regfile receives both input signal and reset signal" << std::endl;
-    throw std::runtime_error("Invalid signal at Register Status");
-  }
   if (wire_out.regfile_reset) {
     for (bool &i : busy_) {
       i = false;

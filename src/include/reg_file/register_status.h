@@ -1,7 +1,6 @@
 #pragma once
 
 #include "reg_file/reg_file.h"
-#include "wiring.h"
 
 struct ReplyRegister {
   bool reg1_busy;

@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "reg_file/register_status.h"
+#include "wiring.h"
 
 int main() {
   RegisterStatus regs;

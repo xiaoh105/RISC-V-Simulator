@@ -22,4 +22,6 @@ add_executable(Tomasulo src/tomasulo_main.cpp
         src/alu/imm_gen.cpp
         src/alu/alu.cpp
         src/tomasulo_cpu.cpp
-        src/reg_file/register_status.cpp)
+        src/reg_file/register_status.cpp
+        src/alu/reservation_station.cpp
+        src/memory/load_store_buffer.cpp)
