@@ -5,8 +5,8 @@ set(CMAKE_CXX_STANDARD 23)
 
 include_directories(src/include)
 
-# add_executable(Judge src/main.cpp)
-add_executable(code src/brute_main.cpp
+add_executable(Judge src/main.cpp)
+add_executable(Brute src/brute_main.cpp
         src/memory/memory.cpp
         src/memory/decoder.cpp
         src/reg_file/reg_file.cpp
@@ -14,4 +14,12 @@ add_executable(code src/brute_main.cpp
         src/alu/imm_gen.cpp
         src/alu/alu.cpp
         src/brute_cpu.cpp)
-# add_executable(Tomasulo src/tomasulo_main.cpp)
+add_executable(Tomasulo src/tomasulo_main.cpp
+        src/memory/memory.cpp
+        src/memory/decoder.cpp
+        src/reg_file/reg_file.cpp
+        src/decoder/instruction_decoder.cpp
+        src/alu/imm_gen.cpp
+        src/alu/alu.cpp
+        src/tomasulo_cpu.cpp
+        src/reg_file/register_status.cpp)
