@@ -5,8 +5,10 @@
 struct ReplyRegister {
   bool reg1_busy;
   uint32_t reg1_val;
+  uint32_t reg1_dependency;
   bool reg2_busy;
   uint32_t reg2_val;
+  uint32_t reg2_dependency;
 };
 
 class RegisterStatus {

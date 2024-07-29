@@ -34,14 +34,18 @@ ReplyRegister RegisterStatus::Query(uint32_t reg1_id, uint32_t reg2_id) {
   ret.reg2_busy = busy_[reg2_id];
   ret.reg1_val = reg_file_.Load(reg1_id);
   ret.reg2_val = reg_file_.Load(reg2_id);
+  ret.reg1_dependency = dependency_[reg1_id];
+  ret.reg2_dependency = dependency_[reg2_id];
   if (wire_out.regfile_append_enable && wire_out.regfile_append_id == reg1_id) {
     ret.reg1_busy = true;
+    ret.reg1_dependency = wire_out.regfile_append_dependency;
   } else if (wire_out.regfile_write_enable && wire_out.regfile_write_id == reg1_id) {
     ret.reg1_busy = false;
     ret.reg1_val = wire_out.regfile_write_val;
   }
   if (wire_out.regfile_append_enable && wire_out.regfile_append_id == reg2_id) {
     ret.reg2_busy = true;
+    ret.reg2_dependency = wire_out.regfile_append_dependency;
   } else if (wire_out.regfile_write_enable && wire_out.regfile_write_id == reg2_id) {
     ret.reg2_busy = false;
     ret.reg2_val = wire_out.regfile_write_val;

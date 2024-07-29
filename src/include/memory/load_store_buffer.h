@@ -34,9 +34,9 @@ private:
   Memory memory_;
   /// Use a circulating array to simulate a real queue.
   Entry entries_[32]{};
-  int head_{};
+  int head_{0};
   /// Tail should be just a guard without actually holding value at its position.
-  int tail_{};
+  int tail_{0};
   /// The progress of a memory access, -1 for idle
-  int turn_;
+  int turn_{-1};
 };

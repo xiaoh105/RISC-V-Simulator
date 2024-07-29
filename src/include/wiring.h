@@ -4,6 +4,7 @@
 #include "decoder/instruction_decoder.h"
 #include "memory/memory.h"
 
+
 struct Wire {
   /// Flag for register dependency setting
   bool regfile_append_enable{false};
@@ -87,6 +88,48 @@ struct Wire {
 
   /// Flag for clearing Load Store Buffer
   bool lsb_reset{false};
+
+  /// Whether input to Reorder buffer is enabled
+  bool rob_append_enable{false};
+  /// Immediate type of the instruction
+  ImmType rob_append_imm_type{};
+  /// Operation type of the instruction
+  OpType rob_append_op_type{};
+  /// Whether the destination/source register is ready
+  bool rob_append_operand1_ready{false};
+  /// The real register id for desination reg and virtual register id for source reg
+  uint32_t rob_append_operand1_id{};
+  /// The val of the register
+  uint32_t rob_append_operand1_val{};
+  /// Whether the address/source register is ready
+  bool rob_append_operand2_ready{false};
+  uint32_t rob_append_operand2_id{};
+  uint32_t rob_append_operand2_val{};
+  /// The result of the branch predictor, true for jump
+  bool rob_append_predict_branch{};
+  /// The address of this instruction, used for feedback to branch predictor
+  uint32_t rob_append_instruction_address{};
+  /// The address of PC if we takes the branch
+  uint32_t rob_append_branch_address{};
+  /// The type of branch
+  BrType rob_append_branch_type{};
+
+  /// Flag for clearing reorder buffer
+  bool rob_reset{};
+
+  /// Whether the result of a B Type instruction is outputted
+  bool rob_branch_result_enable{};
+  /// The address of the operation
+  uint32_t rob_branch_result_instruction_address{};
+  /// Whether the branch is taken
+  bool rob_branch_result_take_branch{};
+  /// Whether branch prediction fails
+  bool rob_branch_result_predict_fail{};
+
+  /// Whether to change program counter after a branch prediction failure/JALR operation
+  bool rob_set_pc_enable{};
+  /// The PC address after the instruction
+  uint32_t rob_set_pc{};
 };
 
 inline Wire wire_in;

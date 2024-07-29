@@ -3,11 +3,15 @@
 #include "memory/load_store_buffer.h"
 #include "wiring.h"
 
+LoadStoreBuffer::LoadStoreBuffer(const std::unordered_map<uint32_t, std::byte>& memory)
+  : memory_(3, memory){}
+
 void LoadStoreBuffer::Tick() {
   if (wire_out.lsb_reset && wire_out.lsb_store_ready) {
     std::cerr << "Both the reset signal and store ready signal is set in LSB" << std::endl;
     throw std::runtime_error("Invalid signal");
   }
+  wire_in.writeback2_enable = false;
   if (wire_out.writeback1_enable) {
     for (auto &entry : entries_) {
       if (!entry.addr_ready && entry.base_reg == wire_out.writeback1_id) {
@@ -29,17 +33,6 @@ void LoadStoreBuffer::Tick() {
       if (!entry.val_ready && entry.value == wire_out.writeback2_id) {
         entry.val_ready = true;
         entry.value = wire_out.writeback2_val;
-      }
-    }
-  }
-  if (wire_out.lsb_reset) {
-    while (head_ != tail_) {
-      auto id = tail_ == 0 ? 31 : tail_ - 1;
-      if (entries_[id].is_load || !entries_[id].val_ready) {
-        --tail_;
-        if (tail_ == -1) {
-          tail_ = 31;
-        }
       }
     }
   }
@@ -104,5 +97,20 @@ void LoadStoreBuffer::Tick() {
   if (wire_out.lsb_instruction_load_enable) {
     wire_in.lsb_instruction = memory_.Load(wire_out.lsb_instruction_load_addr, Memory::Type::word, false);
   }
+  if (wire_out.lsb_reset) {
+    while (head_ != tail_) {
+      auto id = tail_ == 0 ? 31 : tail_ - 1;
+      if (entries_[id].is_load || !entries_[id].val_ready) {
+        --tail_;
+        if (tail_ == -1) {
+          tail_ = 31;
+        }
+      }
+    }
+  }
   memory_.Tick();
+}
+
+bool LoadStoreBuffer::IsFull() const {
+  return (tail_ + 1) % 32 == head_ || (tail_ + 2) % 32 == head_;
 }
