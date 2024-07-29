@@ -2,6 +2,7 @@
 #include <cstdint>
 
 #include "decoder/instruction_decoder.h"
+#include "memory/memory.h"
 
 struct Wire {
   /// Flag for register dependency setting
@@ -59,15 +60,30 @@ struct Wire {
   bool lsb_append_enable{false};
   /// Memory visit type
   bool lsb_append_is_load{};
+  /// The width of load/store
+  Memory::Type lsb_append_width{};
+  /// The extension mode
+  bool lsb_append_sign_ext{};
+  /// Whether the base register is ready
+  bool lsb_append_base_ready{};
   /// Base register for memory address
   uint32_t lsb_append_base_reg{};
   /// Offset of the memory address
   uint32_t lsb_append_imm{};
+  /// Whether the value register is ready
+  bool lsb_append_val_ready{};
   /// Virtual destination register for LOAD op; Value to be written for STORE op
   uint32_t lsb_append_val{};
 
   /// Whether the first STORE in the queue is committed
-  bool lsb_store_ready_{false};
+  bool lsb_store_ready{false};
+
+  /// Whether to enable instruction fetch in Load Store Buffer
+  bool lsb_instruction_load_enable{false};
+  /// The address of the instruction
+  uint32_t lsb_instruction_load_addr{};
+  /// Instruction fetched from Load Store Buffer
+  uint32_t lsb_instruction{};
 
   /// Flag for clearing Load Store Buffer
   bool lsb_reset{false};

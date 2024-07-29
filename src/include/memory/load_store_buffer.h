@@ -7,8 +7,6 @@
 constexpr int CLOCK_PER_MEMOP = 3;
 
 struct Entry {
-  /// Whether the entry is empty
-  bool busy{false};
   /// Operation type
   bool is_load{};
   bool addr_ready{};
@@ -17,6 +15,10 @@ struct Entry {
   uint32_t address{};
   /// For LOAD, val_ready = 1 if dest reg is ready; For STORE, val_ready = 1 if it's committed.
   bool val_ready{};
+  /// The width of the memory op
+  Memory::Type width{};
+  /// Whether the memory operation is sign extended
+  bool sign_ext{};
   /// Holds the virtual register before the value is calculated
   uint32_t value{};
 };
