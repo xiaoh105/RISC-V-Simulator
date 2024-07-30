@@ -61,6 +61,8 @@ struct Wire {
   bool lsb_append_enable{false};
   /// Memory visit type
   bool lsb_append_is_load{};
+  /// Whether the instruction can be executed
+  bool lsb_append_ready{};
   /// The width of load/store
   Memory::Type lsb_append_width{};
   /// The extension mode
@@ -83,8 +85,13 @@ struct Wire {
   bool lsb_instruction_load_enable{false};
   /// The address of the instruction
   uint32_t lsb_instruction_load_addr{};
+
+  /// Whether instruction fetching has return
+  bool lsb_instruction_return_enable{false};
+  /// The program counter of the instruction
+  uint32_t lsb_instruction_return_addr{};
   /// Instruction fetched from Load Store Buffer
-  uint32_t lsb_instruction{};
+  uint32_t lsb_instruction_return{};
 
   /// Flag for clearing Load Store Buffer
   bool lsb_reset{false};
@@ -95,6 +102,8 @@ struct Wire {
   ImmType rob_append_imm_type{};
   /// Operation type of the instruction
   OpType rob_append_op_type{};
+  /// The destination register for writeback
+  uint32_t rob_append_rdest{};
   /// Whether the destination/source register is ready
   bool rob_append_operand1_ready{false};
   /// The real register id for desination reg and virtual register id for source reg
@@ -130,6 +139,9 @@ struct Wire {
   bool rob_set_pc_enable{};
   /// The PC address after the instruction
   uint32_t rob_set_pc{};
+
+  /// Whether to drop the instruction fetched next for instruction queue
+  bool instruction_queue_drop{false};
 };
 
 inline Wire wire_in;

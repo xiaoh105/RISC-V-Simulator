@@ -12,6 +12,10 @@ void RegisterStatus::Tick() {
     return;
   }
   if (wire_out.regfile_write_enable) {
+    if (wire_out.regfile_write_id == 10 && wire_out.regfile_write_val == 255) {
+      std::cout << (reg_file_.Load(10) & 255) << std::endl;
+      exit(0);
+    }
     reg_file_.Store(wire_out.regfile_write_id, wire_out.regfile_write_val);
     if (busy_[wire_out.regfile_write_id] == wire_out.regfile_write_dependency) {
       busy_[wire_out.regfile_write_id] = false;

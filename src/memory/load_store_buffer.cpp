@@ -12,6 +12,7 @@ void LoadStoreBuffer::Tick() {
     throw std::runtime_error("Invalid signal");
   }
   wire_in.writeback2_enable = false;
+  wire_in.lsb_instruction_return_enable = false;
   if (wire_out.writeback1_enable) {
     for (auto &entry : entries_) {
       if (!entry.addr_ready && entry.base_reg == wire_out.writeback1_id) {
@@ -40,8 +41,8 @@ void LoadStoreBuffer::Tick() {
     auto cur = head_;
     bool flag = false;
     while (cur != tail_) {
-      if (!entries_[cur].val_ready) {
-        entries_[cur].val_ready = true;
+      if (!entries_[cur].ready) {
+        entries_[cur].ready = true;
         flag = true;
         break;
       }
@@ -72,7 +73,7 @@ void LoadStoreBuffer::Tick() {
     }
     memory_.Tick();
   } else {
-    if (head_ != tail_ && entries_[head_].addr_ready && entries_[head_].val_ready) {
+    if (head_ != tail_ && entries_[head_].addr_ready && entries_[head_].val_ready && entries_[head_].ready) {
       turn_ = 0;
       if (!entries_[head_].is_load) {
         memory_.Store(entries_[head_].address, entries_[head_].value, entries_[head_].width);
@@ -85,6 +86,7 @@ void LoadStoreBuffer::Tick() {
       throw std::runtime_error("Invalid append signal");
     }
     entries_[tail_].addr_ready = wire_out.lsb_append_base_ready;
+    entries_[tail_].ready = wire_out.lsb_append_ready;
     entries_[tail_].base_reg = wire_out.lsb_append_base_reg;
     entries_[tail_].address = wire_out.lsb_append_imm;
     entries_[tail_].is_load = wire_out.lsb_append_is_load;
@@ -95,7 +97,9 @@ void LoadStoreBuffer::Tick() {
     tail_ = (tail_ + 1) % 32;
   }
   if (wire_out.lsb_instruction_load_enable) {
-    wire_in.lsb_instruction = memory_.Load(wire_out.lsb_instruction_load_addr, Memory::Type::word, false);
+    wire_in.lsb_instruction_return_enable = true;
+    wire_in.lsb_instruction_return = memory_.Load(wire_out.lsb_instruction_load_addr, Memory::Type::word, false);
+    wire_in.lsb_instruction_return_addr = wire_out.lsb_instruction_load_addr;
   }
   if (wire_out.lsb_reset) {
     while (head_ != tail_) {

@@ -26,4 +26,5 @@ add_executable(Tomasulo src/tomasulo_main.cpp
         src/alu/reservation_station.cpp
         src/memory/load_store_buffer.cpp
         src/reorder_buffer/reorder_buffer.cpp
-        src/instruction_queue/branch_predictor.cpp)
+        src/instruction_queue/branch_predictor.cpp
+        src/instruction_queue/instruction_queue.cpp)

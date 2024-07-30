@@ -8,6 +8,9 @@ struct RoBEntry {
   ImmType imm_type{};
   OpType op_type{};
 
+  /// The destination register for regfile writeback
+  uint32_t rdest{};
+
   /// Operand 1 saves:
   /// (1) Result for arithmetic/LOAD operations
   /// (2) PC + 4 for JALR and JAL

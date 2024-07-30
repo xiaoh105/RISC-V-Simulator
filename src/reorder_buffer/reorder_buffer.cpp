@@ -51,7 +51,7 @@ void ReorderBuffer::Tick() {
     if (entry.operand1_ready) {
       wire_out.regfile_write_enable = true;
       wire_out.regfile_write_dependency = head_;
-      wire_out.regfile_write_id = entry.operand1_id;
+      wire_out.regfile_write_id = entry.rdest;
       wire_out.regfile_write_val = entry.operand1_val;
       head_ = (head_ + 1) % 32;
     }
@@ -62,7 +62,7 @@ void ReorderBuffer::Tick() {
       wire_in.rob_set_pc = entry.operand2_val;
       wire_in.regfile_write_enable = true;
       wire_in.regfile_write_dependency = head_;
-      wire_in.regfile_write_id = entry.operand1_id;
+      wire_in.regfile_write_id = entry.rdest;
       wire_in.regfile_write_val = entry.operand1_val;
       head_ = (head_ + 1) % 32;
     }
@@ -126,6 +126,7 @@ void ReorderBuffer::Tick() {
     entry = entries_[tail_];
     entry.imm_type = wire_out.rob_append_imm_type;
     entry.op_type = wire_out.rob_append_op_type;
+    entry.rdest = wire_out.rob_append_rdest;
     entry.operand1_ready = wire_out.rob_append_operand1_ready;
     entry.operand1_id = wire_out.rob_append_operand1_id;
     entry.operand1_val = wire_out.rob_append_operand1_val;

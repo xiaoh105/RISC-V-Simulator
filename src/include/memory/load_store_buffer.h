@@ -6,14 +6,16 @@
 
 constexpr int CLOCK_PER_MEMOP = 3;
 
-struct Entry {
+struct LSBEntry {
   /// Operation type
   bool is_load{};
+  /// For LOAD, ready = 1 holds; For STORE, ready = 1 if it's committed
+  bool ready{false};
   bool addr_ready{};
   uint32_t base_reg{};
   /// When base register is not ready, address holds the offset to the baseR
   uint32_t address{};
-  /// For LOAD, val_ready = 1 if dest reg is ready; For STORE, val_ready = 1 if it's committed.
+  /// For LOAD, val_ready = 1 holds; For STORE, val_ready = 1 the value is ready.
   bool val_ready{};
   /// The width of the memory op
   Memory::Type width{};
@@ -33,7 +35,7 @@ public:
 private:
   Memory memory_;
   /// Use a circulating array to simulate a real queue.
-  Entry entries_[32]{};
+  LSBEntry entries_[32]{};
   int head_{0};
   /// Tail should be just a guard without actually holding value at its position.
   int tail_{0};
