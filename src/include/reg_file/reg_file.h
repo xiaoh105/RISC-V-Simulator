@@ -11,6 +11,7 @@ public:
   void Tick();
 
 private:
+  void Report() const;
   uint32_t registers_[32]{};
   // Debugging variables
   int read_{};

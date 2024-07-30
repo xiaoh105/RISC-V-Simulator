@@ -27,7 +27,7 @@ void InstructionQueue::Tick() {
     imm_gen_.Tick();
     return;
   }
-  if (!wire_out.instruction_queue_drop && wire_out.lsb_instruction_return_enable && !stall_load_) {
+  if (!wire_out.instruction_queue_drop && wire_out.lsb_instruction_return_enable && !stall_load_ && !wire_out.rob_set_pc_enable) {
     if ((tail_ + 1) % 32 == head_) {
       std::cerr << "Trying to append to Instruction Queue when it's already full" << std::endl;
       throw std::runtime_error("Invalid instruction fetch");
@@ -61,7 +61,7 @@ void InstructionQueue::Tick() {
     wire_in.lsb_instruction_load_addr = program_counter_;
     program_counter_ += 4;
   }
-  if (head_ != tail_) {
+  if (head_ != tail_ && !reorder_buffer_.IsFull() && !lsb_.IsFull() && !rs_.IsFull()) {
     auto &op = instructions_[head_];
     auto reg1 = FetchBits(op.instruction, 15, 19);
     auto reg2 = FetchBits(op.instruction, 20, 24);
@@ -83,8 +83,10 @@ void InstructionQueue::Tick() {
 
     wire_in.regfile_append_id = dest;
     wire_in.regfile_append_dependency = virtual_dest;
+    wire_in.regfile_append_addr = op.address;
 
     wire_in.rs_append_dest = virtual_dest;
+    wire_in.rs_append_alutype = op.alu_type;
 
     wire_in.lsb_append_width = static_cast<Memory::Type>(FetchBits(op.instruction, 12, 13));
     wire_in.lsb_append_sign_ext = FetchBits(op.instruction, 14, 14) == 0;
@@ -97,7 +99,7 @@ void InstructionQueue::Tick() {
       wire_in.rob_append_operand1_val = res.reg1_val;
       wire_in.lsb_append_imm = res.reg1_val + op.immediate;
     } else {
-      auto rename = reorder_buffer_.Query(reg1);
+      auto rename = reorder_buffer_.Query(res.reg1_dependency);
       if (rename.ready) {
         wire_in.rs_append_operand1_ready = true;
         wire_in.rob_append_operand1_ready = true;
@@ -106,7 +108,7 @@ void InstructionQueue::Tick() {
         wire_in.rob_append_operand1_val = rename.val;
         wire_in.lsb_append_imm = rename.val + op.immediate;
       } else {
-        wire_in.rs_append_operand1 = false;
+        wire_in.rs_append_operand1_ready = false;
         wire_in.rob_append_operand1_ready = false;
         wire_in.lsb_append_base_ready = false;
         wire_in.rs_append_operand1 = res.reg1_dependency;
@@ -124,7 +126,7 @@ void InstructionQueue::Tick() {
       wire_in.rob_append_operand2_val = res.reg2_val;
       wire_in.lsb_append_val = res.reg2_val;
     } else {
-      auto rename = reorder_buffer_.Query(reg2);
+      auto rename = reorder_buffer_.Query(res.reg2_dependency);
       if (rename.ready) {
         wire_in.rs_append_operand2_ready = true;
         wire_in.rob_append_operand2_ready = true;
@@ -133,7 +135,7 @@ void InstructionQueue::Tick() {
         wire_in.rob_append_operand2_val = rename.val;
         wire_in.lsb_append_val = rename.val;
       } else {
-        wire_in.rs_append_operand2 = false;
+        wire_in.rs_append_operand2_ready = false;
         wire_in.rob_append_operand2_ready = false;
         wire_in.lsb_append_val_ready = false;
         wire_in.rs_append_operand2 = res.reg2_dependency;
@@ -167,6 +169,13 @@ void InstructionQueue::Tick() {
       } else if (op.op_type == OpType::Branch) {
         stall_ = true;
         wire_in.regfile_append_enable = true;
+        wire_in.rob_append_operand2_ready = wire_in.rob_append_operand1_ready;
+        wire_in.rob_append_operand2_id = wire_in.rob_append_operand1_id;
+        if (wire_in.rob_append_operand2_ready) {
+          wire_in.rob_append_operand2_val = wire_in.rob_append_operand1_val + op.immediate;
+        } else {
+          wire_in.rob_append_operand2_val = op.immediate;
+        }
         wire_in.rob_append_operand1_ready = true;
         wire_in.rob_append_operand1_val = op.address + 4;
       } else {
@@ -199,6 +208,7 @@ void InstructionQueue::Tick() {
     if (op.instruction == 0x0ff00513) {
       stall_ = true;
     }
+    head_ = (head_ + 1) % 32;
   }
   predictor_.Tick();
   decoder_.Tick();

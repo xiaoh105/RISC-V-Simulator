@@ -11,6 +11,25 @@ void ReservationStation::Tick() {
     size_ = 0;
     return;
   }
+  if (size_ >= 32 && wire_out.rs_append_enable) {
+    std::cerr << "Invalid append signal: The reservation station is full" << std::endl;
+    throw std::runtime_error("Invalid append signal");
+  }
+  if (wire_out.rs_append_enable) {
+    for (auto &entry : entries_) {
+      if (!entry.busy) {
+        entry.busy = true;
+        entry.alu_type = wire_out.rs_append_alutype;
+        entry.dest = wire_out.rs_append_dest;
+        entry.operand1_ready = wire_out.rs_append_operand1_ready;
+        entry.operand2_ready = wire_out.rs_append_operand2_ready;
+        entry.operand1_val = wire_out.rs_append_operand1;
+        entry.operand2_val = wire_out.rs_append_operand2;
+        ++size_;
+        break;
+      }
+    }
+  }
   if (wire_out.writeback1_enable) {
     for (auto &entry : entries_) {
       if (!entry.operand1_ready && entry.operand1_val == wire_out.writeback1_id) {
@@ -47,34 +66,9 @@ void ReservationStation::Tick() {
       break;
     }
   }
-  if (size_ >= 32 && wire_out.rs_append_enable) {
-    std::cerr << "Invalid append signal: The reservation station is full" << std::endl;
-    throw std::runtime_error("Invalid append signal");
-  }
-  if (wire_out.rs_append_enable) {
-    for (auto &entry : entries_) {
-      if (!entry.busy) {
-        entry.busy = true;
-        entry.alu_type = wire_out.rs_append_alutype;
-        entry.dest = wire_out.rs_append_dest;
-        entry.operand1_ready = wire_out.rs_append_operand1_ready;
-        entry.operand2_ready = wire_out.rs_append_operand2_ready;
-        entry.operand1_val = wire_out.rs_append_operand1;
-        entry.operand2_val = wire_out.rs_append_operand2;
-        ++size_;
-        return;
-      }
-    }
-  }
+
 }
 
 bool ReservationStation::IsFull() const {
-  bool flag = false;
-  for (const auto &entry : entries_) {
-    if (entry.busy && entry.operand1_ready && entry.operand2_ready) {
-      flag = true;
-      break;
-    }
-  }
-  return size_ - flag + wire_out.rs_append_enable < 32;
+  return size_ + 1 >= 32;
 }

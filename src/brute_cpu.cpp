@@ -26,6 +26,7 @@ void BruteCPU::Execute() {
     std::cout << (reg_file_.Load(10) & 255u) << std::endl;
     exit(0);
   }
+  std::cout << std::hex << program_counter_ << std::endl;
   decoder_.Decode(instruction);
   auto alu_type = decoder_.GetALUType();
   auto op_type = decoder_.GetOpType();

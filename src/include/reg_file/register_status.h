@@ -2,6 +2,8 @@
 
 #include "reg_file/reg_file.h"
 
+inline bool terminate = false;
+
 struct ReplyRegister {
   bool reg1_busy;
   uint32_t reg1_val;
@@ -22,6 +24,8 @@ private:
   bool busy_[32]{};
   /// Which index of RoB is this register dependent on.
   uint32_t dependency_[32]{};
+  // TODO: delete the variable
+  uint32_t addr_[32]{};
   /// Real register file under abstraction.
   RegFile reg_file_;
 };

@@ -7,10 +7,6 @@ uint32_t RegFile::Load(uint32_t addr) {
     std::cerr << "Invalid register address " << addr << std::endl;
     throw std::runtime_error("Invalid register");
   }
-  if (read_ == 2) {
-    std::cerr << "Register read > 2 in one tick" << std::endl;
-    throw std::runtime_error("Invalid read");
-  }
   ++read_;
   return registers_[addr];
 }
@@ -35,3 +31,10 @@ void RegFile::Tick() {
   read_ = 0;
 }
 
+void RegFile::Report() const {
+  std::cout << "Reporting registers" << std::endl;
+  for (const auto &val : registers_) {
+    std::cout << val << " ";
+  }
+  std::cout << std::endl;
+}

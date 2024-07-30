@@ -15,6 +15,7 @@ public:
   void Store(uint32_t addr, uint32_t data, Type type);
 
 private:
+  void Report();
   const int clock_per_visit_;
   std::unordered_map<uint32_t, std::byte> memory_{};
   int turn_{};

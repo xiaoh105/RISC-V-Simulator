@@ -15,7 +15,7 @@ struct LSBEntry {
   uint32_t base_reg{};
   /// When base register is not ready, address holds the offset to the baseR
   uint32_t address{};
-  /// For LOAD, val_ready = 1 holds; For STORE, val_ready = 1 the value is ready.
+  /// For LOAD, val_ready = 1 holds; For STORE, val_ready = 1 if the value is ready.
   bool val_ready{};
   /// The width of the memory op
   Memory::Type width{};

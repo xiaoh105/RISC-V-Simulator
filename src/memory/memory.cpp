@@ -1,6 +1,8 @@
 #include <climits>
 #include <cstddef>
 #include <iostream>
+#include <vector>
+
 #include "memory/memory.h"
 
 union HalfWord {
@@ -90,4 +92,21 @@ void Memory::Store(uint32_t addr, uint32_t data, Type type) {
       break;
     }
   }
+  Report();
+}
+
+void Memory::Report() {
+  /*std::cout << "Reporting memory status" << std::endl;
+  std::vector<std::pair<uint32_t, unsigned int>> res;
+  res.reserve(memory_.size());
+  for (const auto &item : memory_) {
+    if (static_cast<unsigned int>(item.second) == 0) {
+      continue;
+    }
+    res.emplace_back(item.first, static_cast<unsigned int>(item.second));
+  }
+  std::sort(res.begin(), res.end());
+  for (const auto &item : res) {
+    std::cout << std::hex << item.first << " " << item.second << std::endl;
+  }*/
 }

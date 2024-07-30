@@ -13,6 +13,22 @@ void LoadStoreBuffer::Tick() {
   }
   wire_in.writeback2_enable = false;
   wire_in.lsb_instruction_return_enable = false;
+  if (wire_out.lsb_append_enable) {
+    if ((tail_ + 1) % 32 == head_) {
+      std::cerr << "LSB receives append signal when it's already full" << std::endl;
+      throw std::runtime_error("Invalid append signal");
+    }
+    entries_[tail_].addr_ready = wire_out.lsb_append_base_ready;
+    entries_[tail_].ready = wire_out.lsb_append_ready;
+    entries_[tail_].base_reg = wire_out.lsb_append_base_reg;
+    entries_[tail_].address = wire_out.lsb_append_imm;
+    entries_[tail_].is_load = wire_out.lsb_append_is_load;
+    entries_[tail_].val_ready = wire_out.lsb_append_val_ready;
+    entries_[tail_].value = wire_out.lsb_append_val;
+    entries_[tail_].width = wire_out.lsb_append_width;
+    entries_[tail_].sign_ext = wire_out.lsb_append_sign_ext;
+    tail_ = (tail_ + 1) % 32;
+  }
   if (wire_out.writeback1_enable) {
     for (auto &entry : entries_) {
       if (!entry.addr_ready && entry.base_reg == wire_out.writeback1_id) {
@@ -71,7 +87,6 @@ void LoadStoreBuffer::Tick() {
       }
       turn_ = -1;
     }
-    memory_.Tick();
   } else {
     if (head_ != tail_ && entries_[head_].addr_ready && entries_[head_].val_ready && entries_[head_].ready) {
       turn_ = 0;
@@ -79,22 +94,6 @@ void LoadStoreBuffer::Tick() {
         memory_.Store(entries_[head_].address, entries_[head_].value, entries_[head_].width);
       }
     }
-  }
-  if (wire_out.lsb_append_enable) {
-    if ((tail_ + 1) % 32 == head_) {
-      std::cerr << "LSB receives append signal when it's already full" << std::endl;
-      throw std::runtime_error("Invalid append signal");
-    }
-    entries_[tail_].addr_ready = wire_out.lsb_append_base_ready;
-    entries_[tail_].ready = wire_out.lsb_append_ready;
-    entries_[tail_].base_reg = wire_out.lsb_append_base_reg;
-    entries_[tail_].address = wire_out.lsb_append_imm;
-    entries_[tail_].is_load = wire_out.lsb_append_is_load;
-    entries_[tail_].val_ready = wire_out.lsb_append_val_ready;
-    entries_[tail_].value = wire_out.lsb_append_val;
-    entries_[tail_].width = wire_out.lsb_append_width;
-    entries_[tail_].sign_ext = wire_out.lsb_append_sign_ext;
-    tail_ = (tail_ + 1) % 32;
   }
   if (wire_out.lsb_instruction_load_enable) {
     wire_in.lsb_instruction_return_enable = true;
@@ -104,17 +103,34 @@ void LoadStoreBuffer::Tick() {
   if (wire_out.lsb_reset) {
     while (head_ != tail_) {
       auto id = tail_ == 0 ? 31 : tail_ - 1;
-      if (entries_[id].is_load || !entries_[id].val_ready) {
+      if (id == head_ && turn_ != -1) {
+        break;
+      }
+      if (entries_[id].is_load || !entries_[id].ready) {
         --tail_;
         if (tail_ == -1) {
           tail_ = 31;
         }
+      } else {
+        break;
       }
+    }
+    auto cur = head_;
+    while (cur != tail_) {
+      if (cur == head_ && turn_ != -1) {
+        cur = (cur + 1) % 32;
+        continue;
+      }
+      if (entries_[cur].is_load || !entries_[cur].ready) {
+        std::cerr << "Invalid Load Store Buffer state" << std::endl;
+        throw std::runtime_error("Invalid LSB");
+      }
+      cur = (cur + 1) % 32;
     }
   }
   memory_.Tick();
 }
 
 bool LoadStoreBuffer::IsFull() const {
-  return (tail_ + 1) % 32 == head_ || (tail_ + 2) % 32 == head_;
+  return (tail_ + 1) % 32 == head_ || (tail_ + 2) % 32 == head_ || (tail_ + 3) % 32 == head_ ;
 }

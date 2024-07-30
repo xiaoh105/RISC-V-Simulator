@@ -13,5 +13,5 @@ void TomasuloCPU::Tick() {
   reservation_station_.Tick();
   register_status_.Tick();
   wire_out = wire_in;
+  ++clock_cycle;
 }
-

@@ -14,7 +14,6 @@ uint32_t ImmGen::FetchImmediate(uint32_t instruction, ImmType imm_type, ALUType 
   }
   imm_ = true;
   if (imm_type == ImmType::R) {
-    std::cerr << "Warn: Trying to get immediate from R Type instrucions" << std::endl;
     return 0;
   }
   if (imm_type == ImmType::I) {

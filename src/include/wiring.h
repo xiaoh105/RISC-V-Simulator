@@ -12,6 +12,8 @@ struct Wire {
   uint32_t regfile_append_id{};
   /// Current dependency id in RoB
   uint32_t regfile_append_dependency{};
+  // TODO: Delete the variable
+  uint32_t regfile_append_addr{};
 
   /// Flag for register write back enable
   bool regfile_write_enable{false};

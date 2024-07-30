@@ -18,4 +18,6 @@ private:
   LoadStoreBuffer load_store_buffer_;
   RegisterStatus register_status_;
   ReorderBuffer reorder_buffer_;
+
+  int clock_cycle = 0;
 };

@@ -12,18 +12,21 @@ void RegisterStatus::Tick() {
     return;
   }
   if (wire_out.regfile_write_enable) {
-    if (wire_out.regfile_write_id == 10 && wire_out.regfile_write_val == 255) {
+    if (wire_out.regfile_write_id == 10 && wire_out.regfile_write_val == 255 && terminate) {
       std::cout << (reg_file_.Load(10) & 255) << std::endl;
       exit(0);
     }
     reg_file_.Store(wire_out.regfile_write_id, wire_out.regfile_write_val);
-    if (busy_[wire_out.regfile_write_id] == wire_out.regfile_write_dependency) {
+    if (dependency_[wire_out.regfile_write_id] == wire_out.regfile_write_dependency) {
       busy_[wire_out.regfile_write_id] = false;
     }
   }
   if (wire_out.regfile_append_enable) {
-    busy_[wire_out.regfile_append_id] = true;
-    dependency_[wire_out.regfile_append_id] = wire_out.regfile_append_dependency;
+    if (!(wire_out.regfile_write_enable && wire_out.regfile_write_dependency == wire_out.regfile_append_dependency)) {
+      busy_[wire_out.regfile_append_id] = true;
+      addr_[wire_out.regfile_append_id] = wire_out.regfile_append_addr;
+      dependency_[wire_out.regfile_append_id] = wire_out.regfile_append_dependency;
+    }
   }
   reg_file_.Tick();
 }
@@ -53,6 +56,14 @@ ReplyRegister RegisterStatus::Query(uint32_t reg1_id, uint32_t reg2_id) {
   } else if (wire_out.regfile_write_enable && wire_out.regfile_write_id == reg2_id) {
     ret.reg2_busy = false;
     ret.reg2_val = wire_out.regfile_write_val;
+  }
+  if (reg1_id == 0) {
+    ret.reg1_busy = false;
+    ret.reg1_val = 0;
+  }
+  if (reg2_id == 0) {
+    ret.reg2_busy = false;
+    ret.reg2_val = 0;
   }
   if (wire_out.regfile_reset) {
     ret.reg1_busy = false;
