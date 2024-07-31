@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "reg_file/register_status.h"
+#include "reorder_buffer/reorder_buffer.h"
 #include "wiring.h"
 
 void RegisterStatus::Tick() {
@@ -14,6 +15,7 @@ void RegisterStatus::Tick() {
   if (wire_out.regfile_write_enable) {
     if (wire_out.regfile_write_id == 10 && wire_out.regfile_write_val == 255 && terminate) {
       std::cout << (reg_file_.Load(10) & 255) << std::endl;
+      // ReportBranch();
       exit(0);
     }
     reg_file_.Store(wire_out.regfile_write_id, wire_out.regfile_write_val);
@@ -24,7 +26,6 @@ void RegisterStatus::Tick() {
   if (wire_out.regfile_append_enable) {
     if (!(wire_out.regfile_write_enable && wire_out.regfile_write_dependency == wire_out.regfile_append_dependency)) {
       busy_[wire_out.regfile_append_id] = true;
-      addr_[wire_out.regfile_append_id] = wire_out.regfile_append_addr;
       dependency_[wire_out.regfile_append_id] = wire_out.regfile_append_dependency;
     }
   }

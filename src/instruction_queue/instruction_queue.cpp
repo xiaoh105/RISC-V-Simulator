@@ -80,10 +80,10 @@ void InstructionQueue::Tick() {
     wire_in.rob_append_operand1_ready = wire_in.rob_append_operand2_ready = false;
     wire_in.rob_append_rdest = dest;
     wire_in.rob_append_operand2_val = 0;
+    wire_in.rob_append_terminate = op.instruction == 0x0ff00513;
 
     wire_in.regfile_append_id = dest;
     wire_in.regfile_append_dependency = virtual_dest;
-    wire_in.regfile_append_addr = op.address;
 
     wire_in.rs_append_dest = virtual_dest;
     wire_in.rs_append_alutype = op.alu_type;

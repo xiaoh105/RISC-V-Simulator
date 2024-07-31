@@ -15,3 +15,5 @@ void TomasuloCPU::Tick() {
   wire_out = wire_in;
   ++clock_cycle;
 }
+
+

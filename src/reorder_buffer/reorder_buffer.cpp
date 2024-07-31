@@ -39,6 +39,7 @@ void ReorderBuffer::Tick() {
     entry.branch_addr = wire_out.rob_append_branch_address;
     entry.branch_type = wire_out.rob_append_branch_type;
     entry.branch_prediction = wire_out.rob_append_predict_branch;
+    entry.terminate = wire_out.rob_append_terminate;
     tail_ = (tail_ + 1) % 32;
   }
   if (wire_out.writeback1_enable) {
@@ -77,10 +78,9 @@ void ReorderBuffer::Tick() {
           wire_out.regfile_write_dependency = head_;
           wire_out.regfile_write_id = entry.rdest;
           wire_out.regfile_write_val = entry.operand1_val;
-          if (entry.imm_type == ImmType::I && entry.rdest == 10 && entry.op_type == OpType::Arith && entry.operand1_val == 255) {
+          if (entry.terminate) {
             terminate = true;
           }
-          std::cout << std::hex << entry.instruction_addr << std::endl;
           head_ = (head_ + 1) % 32;
         }
       } else if (entry.imm_type == ImmType::I) {
@@ -92,12 +92,10 @@ void ReorderBuffer::Tick() {
           wire_in.regfile_write_dependency = head_;
           wire_in.regfile_write_id = entry.rdest;
           wire_in.regfile_write_val = entry.operand1_val;
-          std::cout << std::hex << entry.instruction_addr << std::endl;
           head_ = (head_ + 1) % 32;
         }
       } else if (entry.imm_type == ImmType::S) {
         wire_in.lsb_store_ready = true;
-        std::cout << std::hex << entry.instruction_addr << std::endl;
         head_ = (head_ + 1) % 32;
       } else if (entry.imm_type == ImmType::B) {
         if (entry.operand1_ready && entry.operand2_ready) {
@@ -134,7 +132,10 @@ void ReorderBuffer::Tick() {
           wire_in.rob_branch_result_instruction_address = entry.instruction_addr;
           wire_in.rob_branch_result_take_branch = branch;
           wire_in.rob_branch_result_predict_fail = branch != entry.branch_prediction;
+          ++total_branch;
+          ++predicted_branch;
           if (branch != entry.branch_prediction) {
+            --predicted_branch;
             wire_in.rob_set_pc_enable = true;
             wire_in.rob_set_pc = branch ? entry.branch_addr : entry.instruction_addr + 4;
             wire_in.regfile_reset = true;
@@ -142,7 +143,6 @@ void ReorderBuffer::Tick() {
             wire_in.rs_reset = true;
             wire_in.lsb_reset = true;
           }
-          std::cout << std::hex << entry.instruction_addr << std::endl;
           head_ = (head_ + 1) % 32;
         }
       } else {

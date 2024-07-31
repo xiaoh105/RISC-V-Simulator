@@ -24,8 +24,6 @@ private:
   bool busy_[32]{};
   /// Which index of RoB is this register dependent on.
   uint32_t dependency_[32]{};
-  // TODO: delete the variable
-  uint32_t addr_[32]{};
   /// Real register file under abstraction.
   RegFile reg_file_;
 };

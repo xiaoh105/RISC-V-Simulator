@@ -29,7 +29,7 @@ public:
 
 private:
   uint32_t program_counter_{0};
-  SaturatingPredictor predictor_{};
+  TournamentPredictor predictor_{};
   InstructionDecoder decoder_{};
   ImmGen imm_gen_{};
   bool stall_{false};

@@ -12,8 +12,6 @@ struct Wire {
   uint32_t regfile_append_id{};
   /// Current dependency id in RoB
   uint32_t regfile_append_dependency{};
-  // TODO: Delete the variable
-  uint32_t regfile_append_addr{};
 
   /// Flag for register write back enable
   bool regfile_write_enable{false};
@@ -124,6 +122,8 @@ struct Wire {
   uint32_t rob_append_branch_address{};
   /// The type of branch
   BrType rob_append_branch_type{};
+  /// Whether the program should terminate
+  bool rob_append_terminate{false};
 
   /// Flag for clearing reorder buffer
   bool rob_reset{};

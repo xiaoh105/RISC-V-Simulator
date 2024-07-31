@@ -1,7 +1,16 @@
 #pragma once
 #include <cstdint>
+#include <iomanip>
 
 #include "decoder/instruction_decoder.h"
+
+inline int total_branch = 0;
+inline int predicted_branch = 0;
+
+inline void ReportBranch() {
+  printf("Total branch: %d, predicted branch: %d. Prediction accuracy: %.2f%%\n",
+    total_branch, predicted_branch, 100.0 * predicted_branch / total_branch);
+}
 
 struct RoBEntry {
   /// Metadata for the type of an instruction
@@ -32,6 +41,8 @@ struct RoBEntry {
   uint32_t branch_addr{};
   BrType branch_type{};
   bool branch_prediction{};
+
+  bool terminate{false};
 };
 
 struct ReplyReorderBuffer {
