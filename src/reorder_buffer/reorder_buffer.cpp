@@ -86,6 +86,7 @@ void ReorderBuffer::Tick() {
       } else if (entry.imm_type == ImmType::I) {
         assert(entry.op_type == OpType::Branch);
         if (entry.operand1_ready && entry.operand2_ready) {
+          assert(entry.operand2_val % 4 == 0 && entry.operand1_val % 4 == 0);
           wire_in.rob_set_pc_enable = true;
           wire_in.rob_set_pc = entry.operand2_val;
           wire_in.regfile_write_enable = true;
@@ -153,10 +154,11 @@ void ReorderBuffer::Tick() {
 }
 
 int ReorderBuffer::GetNextId() const {
-  if (wire_out.rob_append_enable) {
-    return (tail_ + 1) % 32;
-  }
-  return tail_;
+  return next_id_;
+}
+
+void ReorderBuffer::SetNextId() {
+  next_id_ = wire_out.rob_append_enable ? (tail_ + 1) % 32 : tail_;
 }
 
 ReplyReorderBuffer ReorderBuffer::Query(uint32_t reg_id) const {

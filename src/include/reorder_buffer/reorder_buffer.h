@@ -56,10 +56,12 @@ public:
   void Tick();
   [[nodiscard]] bool IsFull() const;
   [[nodiscard]] int GetNextId() const;
+  void SetNextId();
   [[nodiscard]] ReplyReorderBuffer Query(uint32_t reg_id) const;
 
 private:
   RoBEntry entries_[32]{};
   int head_{0};
   int tail_{0};
+  int next_id_{};
 };

@@ -1,3 +1,4 @@
+#include <cassert>
 #include <iostream>
 
 #include "instruction_queue/instruction_queue.h"
@@ -173,6 +174,7 @@ void InstructionQueue::Tick() {
         wire_in.rob_append_operand2_id = wire_in.rob_append_operand1_id;
         if (wire_in.rob_append_operand2_ready) {
           wire_in.rob_append_operand2_val = wire_in.rob_append_operand1_val + op.immediate;
+          assert(wire_in.rob_append_operand2_val % 4 == 0);
         } else {
           wire_in.rob_append_operand2_val = op.immediate;
         }

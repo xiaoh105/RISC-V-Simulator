@@ -104,6 +104,10 @@ void LoadStoreBuffer::Tick() {
     while (head_ != tail_) {
       auto id = tail_ == 0 ? 31 : tail_ - 1;
       if (id == head_ && turn_ != -1) {
+        if (entries_[id].is_load) {
+          turn_ = -1;
+          tail_ = head_;
+        }
         break;
       }
       if (entries_[id].is_load || !entries_[id].ready) {

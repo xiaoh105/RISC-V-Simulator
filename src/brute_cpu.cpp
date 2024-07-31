@@ -23,7 +23,7 @@ void BruteCPU::Tick() {
 void BruteCPU::Execute() {
   auto instruction = memory_.Load(program_counter_, Memory::Type::word, true);
   if (instruction == 0x0ff00513) {
-    std::cout << (reg_file_.Load(10) & 255u) << std::endl;
+    std::cout << std::dec << (reg_file_.Load(10) & 255u) << std::endl;
     exit(0);
   }
   std::cout << std::hex << program_counter_ << std::endl;

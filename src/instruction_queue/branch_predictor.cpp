@@ -1,3 +1,6 @@
+#include <cassert>
+#include <iostream>
+
 #include "instruction_queue/branch_predictor.h"
 #include "wiring.h"
 
@@ -16,8 +19,10 @@ void SaturatingPredictor::Tick() {
 }
 
 void TournamentPredictor::Tick() {
+  assert(history_ <= 1023);
   if (wire_out.rob_branch_result_enable) {
     auto address = wire_out.rob_branch_result_instruction_address & (1 << 10) - 1;
+    assert(address <= 1023);
     auto global_prediction = global_predictor_[history_] >= 2;
     auto local_prediction = local_predictor_[address] >= 2;
     auto branch = wire_out.rob_branch_result_take_branch;
@@ -44,6 +49,8 @@ void TournamentPredictor::Tick() {
 
 bool TournamentPredictor::PredictBranch(uint32_t addr) const {
   addr &= (1 << 10) - 1;
+  assert(addr <= 1023);
+  assert(history_ <= 1023);
   if (selector_[addr] >= 2) {
     return local_predictor_[addr] >= 2;
   }

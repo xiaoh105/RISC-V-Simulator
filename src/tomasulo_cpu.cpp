@@ -7,13 +7,13 @@ TomasuloCPU::TomasuloCPU(const std::unordered_map<uint32_t, std::byte>& memory)
       register_status_, reorder_buffer_){}
 
 void TomasuloCPU::Tick() {
+  reorder_buffer_.SetNextId();
+
   instruction_queue_.Tick();
-  reorder_buffer_.Tick();
   load_store_buffer_.Tick();
   reservation_station_.Tick();
+  reorder_buffer_.Tick();
   register_status_.Tick();
   wire_out = wire_in;
   ++clock_cycle;
 }
-
-

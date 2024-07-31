@@ -24,6 +24,7 @@ void RegFile::Store(uint32_t addr, uint32_t value) {
   if (addr != 0) {
     registers_[addr] = value; // NOLINT
   }
+  // Report();
 }
 
 void RegFile::Tick() {

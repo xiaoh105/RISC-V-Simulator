@@ -14,7 +14,7 @@ void RegisterStatus::Tick() {
   }
   if (wire_out.regfile_write_enable) {
     if (wire_out.regfile_write_id == 10 && wire_out.regfile_write_val == 255 && terminate) {
-      std::cout << (reg_file_.Load(10) & 255) << std::endl;
+      std::cout << std::dec << (reg_file_.Load(10) & 255) << std::endl;
       // ReportBranch();
       exit(0);
     }
@@ -47,14 +47,16 @@ ReplyRegister RegisterStatus::Query(uint32_t reg1_id, uint32_t reg2_id) {
   if (wire_out.regfile_append_enable && wire_out.regfile_append_id == reg1_id) {
     ret.reg1_busy = true;
     ret.reg1_dependency = wire_out.regfile_append_dependency;
-  } else if (wire_out.regfile_write_enable && wire_out.regfile_write_id == reg1_id) {
+  } else if (wire_out.regfile_write_enable && wire_out.regfile_write_id == reg1_id &&
+    wire_out.regfile_write_dependency == ret.reg1_dependency) {
     ret.reg1_busy = false;
     ret.reg1_val = wire_out.regfile_write_val;
   }
   if (wire_out.regfile_append_enable && wire_out.regfile_append_id == reg2_id) {
     ret.reg2_busy = true;
     ret.reg2_dependency = wire_out.regfile_append_dependency;
-  } else if (wire_out.regfile_write_enable && wire_out.regfile_write_id == reg2_id) {
+  } else if (wire_out.regfile_write_enable && wire_out.regfile_write_id == reg2_id &&
+    wire_out.regfile_write_dependency == ret.reg2_dependency) {
     ret.reg2_busy = false;
     ret.reg2_val = wire_out.regfile_write_val;
   }

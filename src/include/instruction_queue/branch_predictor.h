@@ -18,9 +18,9 @@ public:
   void Tick();
 
 private:
-  uint32_t global_predictor_[1024]{};
-  uint32_t local_predictor_[1024]{};
+  uint32_t global_predictor_[2048]{};
+  uint32_t local_predictor_[2048]{};
   /// >= 2 for local predictor, < 2 for global predictor
-  uint32_t selector_[1024]{};
+  uint32_t selector_[2048]{};
   uint32_t history_{};
 };
